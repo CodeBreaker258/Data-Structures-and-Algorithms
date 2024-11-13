@@ -1,0 +1,140 @@
+Script started on Wed 17 Apr 2019 11:11:37 AM EDT
+]0;sims_gl@cobra:~/CSC245/Labs/Lab6[?1034h[sims_gl@cobra Lab6]$ cat-[K -n radis[KxS.cpp
+     1	#include <iostream>
+     2	#include <queue>
+     3	#include <deque>
+     4	#include <vector>
+     5	#include <string>
+     6	#include <algorithm>
+     7	#include <stdio.h>
+     8	using namespace std;
+     9	
+    10	//int getMax(const vector<string>& v);
+    11	int maxElemLength(const vector<string>& v);
+    12	int GetLetter(string letter, int k);
+    13	void padWord(vector<string> v, int o);
+    14	void unpadWord(vector<string> v, int o);
+    15	vector<queue<string> > ItemsToQueues(const vector<string>& L, int k);
+    16	vector<string> QueuesToArray(vector<queue<string> >& QA, int numVals);
+    17	void RadixSort(vector<string>& L, int numDigits);
+    18	void PrintVector(const vector<string>& L);
+    19	
+    20	
+    21	int main(){
+    22	
+    23		vector<string> L; // the list to be sorted
+    24		vector<queue<string> > QA(128); //vector of queues indexed 0-9
+    25		string a[] = {"zebra", "apple", "orange", "can", "candy", "a", 
+    26				"top", "pumpkin", "today", "parade"};
+    27		int size = sizeof(a)/sizeof(a[0]);
+    28		//inserting the values into the vector
+    29		for(int i = 0; i < size; i++)
+    30			L.push_back(a[i]);
+    31		cout << "List before Pass: " << endl;
+    32		PrintVector(L);
+    33		
+    34		int  r = maxElemLength(L);
+    35		padWord(L, r);
+    36	
+    37		RadixSort(L, r);
+    38	
+    39		unpadWord(L, r);
+    40		cout << "List after Pass III and Step 2: " << endl;
+    41		PrintVector(L);	
+    42		return 0;
+    43	}
+    44	
+    45	//a method that calls getMax and then finds the length of the maximum element
+    46	int maxElemLength(const vector<string>& v)
+    47	{
+    48		int maxVal = v[0].length();
+    49		for(int i = 1; i < v.size(); i++)
+    50			if(v[i].length() > maxVal)
+    51				maxVal = v[i].length();
+    52		return maxVal;
+    53	}
+    54	
+    55	int GetLetter(string letter, int k)
+    56	{
+    57		return letter[letter.length() - 1 - k];
+    58	}
+    59	
+    60	//a method that pads the strings to an equal length
+    61	void padWord(vector<string> v, int k)
+    62	{
+    63		for(int i = 0; i < v.size(); i++)
+    64			if(v[i].length() < maxElemLength(v))
+    65				for(int j  = v[i].length(); j < maxElemLength(v); j++)
+    66					v[i] += " ";
+    67	}
+    68	
+    69	//a method that gets rid of the added padding
+    70	void unpadWord(vector<string> v, int k)
+    71	{
+    72		for(int i = 0; i < v.size(); i++)
+    73			while(v[i].at(v[i].length() - 1)  == ' ')
+    74				v[i] = v[i].substr(0, v[i].length() -1);	
+    75	}
+    76	
+    77	//a method that corresponds to the first step in a radix sort
+    78	vector<queue<string> > ItemsToQueues(const vector<string>& L, int k)
+    79	{
+    80		vector<queue<string> > QA(256);	
+    81		for(int i = 0; i < L.size(); i++){
+    82			QA[GetLetter(L[i], k)].push(L[i]);
+    83		}
+    84		return QA;
+    85	
+    86	}
+    87	
+    88	//a method that corresponds to the second step in a radix sort
+    89	vector<string> QueuesToArray(vector<queue<string> >& QA, int numVals)
+    90	{
+    91		vector<string> L(numVals);
+    92		int e = 0;
+    93	
+    94		for(int j = 0; j < 256; j++){
+    95			while(!QA[j].empty()){
+    96				L[e] = QA[j].front();
+    97				QA[j].pop();
+    98				e++;
+    99			}
+   100		}	
+   101		return L;	
+   102	}
+   103	
+   104	//a method that performs the radix sort on the given array for strings 
+   105	void RadixSort(vector<string>& L, int numDigits)
+   106	{
+   107		vector<queue<string> > QA(256);
+   108		for(int k = 0; k < numDigits; k++){
+   109			QA = ItemsToQueues(L, k);
+   110			L = QueuesToArray(QA, L.size());
+   111		}
+   112	}
+   113	
+   114	void PrintVector(const vector<string>& L)
+   115	{
+   116		for(int i = 0; i < L.size(); i++)
+   117			cout << L.at(i) << endl;
+   118	}
+]0;sims_gl@cobra:~/CSC245/Labs/Lab6[sims_gl@cobra Lab6]$ c++ radix.[KS.cpp
+]0;sims_gl@cobra:~/CSC245/Labs/Lab6[sims_gl@cobra Lab6]$ a.out
+List before Pass: 
+zebra
+apple
+orange
+can
+candy
+a
+top
+pumpkin
+today
+parade
+terminate called after throwing an instance of 'std::out_of_range'
+  what():  basic_string::at
+Aborted (core dumped)
+]0;sims_gl@cobra:~/CSC245/Labs/Lab6[sims_gl@cobra Lab6]$ exit
+exit
+
+Script done on Wed 17 Apr 2019 11:11:52 AM EDT

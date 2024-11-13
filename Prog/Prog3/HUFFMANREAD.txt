@@ -1,0 +1,104 @@
+What is Huffman ADT?
+Huffman is a type of lossless data compression algorithm. The purpose of this ADT is to assign variable-lengths of code to input
+characters, and these lengths are determined by the frequency of corresponding characters. The most frequent character is given the 
+shortest code while the least frequent characters get the longest since they are not used as frequently as the more common characters.
+
+What are the attributes and operations of the Huffman ADT?
+The Huffman ADT is used to compress and decompress data. Huffman can also encode and decode files. To encode a file, Huffman uses a tree
+that is full of nodes. Starting from the root and going to the leaves, 0's and 1's are assigned based on the side of the tree that is 
+being traversed. The left branches of the tree gets 0 while the right side of the tree gets 1. By providing 0's and 1's to the branches
+on the tree, it provides a unique encoding for that tree. If the order of the numbers were different then the encoding of that tree 
+would be different. These 0's and 1's are also based on the weight/frequency of the characters. 
+
+For decoding, the Huffman tree would be used again. The 0's and 1's would be followed to a leaf and the character from that path 
+would be returned. 
+
+There are eight operations that will be used by this class: insert, inTree, GetFrequency, GetCode, PrintTable, and numNodes, fetchBread
+and compress. Each operation has a specific purpose within the class. THe insert operation allows a character and its associated weight 
+to be inserted into a node of the Huffman tree. The inTree operation returns a boolean value that indicates whether a given characters 
+is stored in the tree or not. The third operation, getFrequency, returns the weight (frequency) if a specific character. GetCode is 
+used to find the compressed code of a given character in the tree. The compressed code is a series of 0's and 1's, and each code is 
+unique to its tree. This can be found using recursion. PrintTable displays the Huffman encoding table that was used in the compression 
+process. The next operation that is used will be the numNodes operation which returns the number of nodes currently in the tree. The
+fetchBread method gets the chars from the file and saves them so that they can be used for the zip and unzip later. The compress method
+takes in the data from the file, compresses the data, and sends it to the outfile.  
+
+Sample Example:
+In the example provided, a sample text file will be given with a string of words given. The example will also demonstrate what the file
+will look like zipped, and an explanation of the compression algorithm used will be given. The uncompressing of the file will also be 
+discussed.
+
+SAMPLE TEXT FILE:
+"MERCER BEAR DAY"
+
+ZIPPED FILE:
+The Huffman tree is built based on the frequency of a character. For example, the string "MERCER BEAR DAY" is a string that consists of
+nine unique characters. Eight of the characters are letters--A, B, C, D, E, M, R, and Y--and the other characters are the space between 
+the words and the new line after the string. From there, the tree is built based on the lowest frequencies. The two frequencies are 
+added together to get a value of T, and it goes on like this until every character is in the tree.
+
+An example tree can be found below:
+							T8
+							/\
+						T6		T7
+						/\		/\
+					    T3	     E	   T5	    R
+					    /\	     	   /\	    
+					 T1   T2    	 T4  A	
+					 /\   /\	 /\
+					B  C D  M	Y  sp
+
+From here, 0's and 1's are added to the branches depending on the branches direction. The left branches get 0's and the right branches
+get 1's. Using those 0's and 1's a code for each character can be found. This code is a binary number that represents that number based 
+on its location in the tree. When it comes to the trees order, it can vary from person to person depending on how ties are handled. A
+tie comes into play when multiple characters have the same frequency, also known as weight. In the tree above, five characters have a 
+frequency of one. All five of those values make up the leaves of the tree, and the space (sp) has a frequency of two. From there the 
+tree is built upward with the T values representing the values of the combined character frequencies.
+
+
+ENCODING TABLE:
+The encoding table have five colums: index, char, weight, parent, and ChildType. The index starts at 0 and increases in value until all
+values from the tree can be entered. In a table for the tree above, the index will range from 0 to 18. The char column is the character
+column. The characters that fill this column are the same characters that make up the tree. The T values are also included. The next 
+column, weight, is also the frequency of each character. The weight of M would be one while the weight of R would be three since there 
+were three R's in "MERCER BEAR DAY." The parent colum represents the "parent" or root for each char or T value. For instance, B and C
+share the parent T1. In the table, T1 will have an index value. That index value will be the value that goes in the parent column for B
+and C. The final column, ChildType, refers to the 0's and 1's that are on the branches based on the direction of the branch. For A, it
+would be 1 because it is to the right of T5. 
+
+An example encoding table for the tree above can be found below:
+
+	++++ ENCODING TABLE ++++
+Index	Char	Weight	Parent	ChildType
+0	sp	2	13	1		
+1	nl	1	12	1
+2	A	2	14	1
+3	B	1	10	0
+4	C	1	10	1
+5	D	1	11	0
+6	E	3	15	1
+7	M	1	11	1
+8	R	3	16	1
+9	Y	1	12	0
+10	T1	2	13	0
+11	T2	2	14	0
+12	T3	2	15	0
+13	T4	4	16	0
+14	T5	4	17	0
+15	T6	5	17	1
+16	T7	7	18	0
+17	T8	9	18	1
+18	T9	16	0	N/A	
+
+**NOTE: The ChildType for the root is N/A since it is the very top of the tree and does not have parents!
+
+In order to get the encoded string, one must traverse the path of the tree to the desired character using the 0's and 1's that were 
+placed based on the direction of the branch. The encoded string should produce binary numbers to represent each character. Looking back 
+at the tree from above, if one wanted to find the binary code of 'M', one would start at the root and traverse downwards to the 'M'. 
+If one goes about doing so, the binary code for 'M' will be "1001". For 'E,' it would be "111" since only two branches have to be 
+traversed in order to get to the 'E'. This procedure would be used for all characters or T values in the chart.
+
+UNZIP FILE
+The unzip file was to decompress the compression that was done from the zip. The various strings had to be parsed to get the 
+corresponding char ascii values and their codes, and the long string at the end was cycled through to test if a code was found. If the
+code was not found, the program would keep cycling through the loop until a code was found. This was accomplished through maps.

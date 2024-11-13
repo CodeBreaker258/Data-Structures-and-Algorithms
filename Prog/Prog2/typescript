@@ -1,0 +1,211 @@
+Script started on Tue 12 Mar 2019 08:47:05 PM EDT
+]0;sims_gl@cobra:~/CSC245/Prog2[?1034h[sims_gl@cobra Prog2]$ exita.outc++ dc.cpp[3@at -n[C[C[C[C[C[C[C
+     1	#include <iostream>
+     2	#include <sstream>
+     3	#include <string>
+     4	#include <cstdlib>
+     5	#include <algorithm>
+     6	#include <cctype>
+     7	#include "stack.h"
+     8	using namespace std;
+     9	
+    10	int OperateCheck(string s, Stack<int>& iStack);
+    11	int OpReturn(char s, Stack<int>& iStack);
+    12	void isValid(char s, Stack<int>& iStack);
+    13	bool allDigits(string s);
+    14	
+    15	int main()
+    16	{
+    17		string s;
+    18		Stack<int> iStack;
+    19		while (getline(cin, s)) {
+    20			OperateCheck(s, iStack);
+    21		}
+    22		return 0;
+    23	}
+    24	//Pre: the user inputs their string
+    25	//Post: based on the string input, certain operations
+    26	//will be carried out and the validity of the input will
+    27	//be determined
+    28	int OperateCheck(string s, Stack<int>& iStack)
+    29	{
+    30		int i = 0, num, inumber;
+    31	
+    32		while (i < s.length()) {
+    33			if (s[i] == '_') {
+    34				string a = "-";
+    35				while (isdigit(s[i + 1])) {
+    36					a += s[i + 1];
+    37					i++;
+    38				}
+    39				inumber = atoi(a.c_str());
+    40				try {
+    41					iStack.push(inumber);
+    42				}
+    43				catch (Overflow obj) { cerr << "Illegal push - I'm full" << endl; }
+    44			}
+    45			else if (isdigit(s[i])) {
+    46				string digit;
+    47				while (isdigit(s[i])) {
+    48	
+    49					digit += s[i];
+    50					i++;
+    51				}
+    52				num = atoi(digit.c_str());
+    53				iStack.push(num);
+    54			}
+    55	
+    56			else if (isalpha(s[i])) {
+    57				isValid(s[i], iStack);
+    58	
+    59			}
+    60			else if (isgraph(s[i])) {
+    61	
+    62				num = OpReturn(s[i], iStack);
+    63				iStack.push(num);
+    64			}
+    65			i++;
+    66		}
+    67	}
+    68	//Pre: a string is entered by the user
+    69	//Post: the method will determine if that 
+    70	//string contains valid characters or not
+    71	void isValid(char s, Stack<int>& iStack)
+    72	{
+    73		int num1, num2;
+    74		try {
+    75			if (s == 'p')
+    76				cout << iStack.top() << '\n';
+    77			else if (s == 'n')
+    78			{
+    79				cout << iStack.topAndPop();
+    80			}
+    81			else if (s == 'f') {
+    82				Stack<int> copyStack(iStack);
+    83				while (!copyStack.isEmpty())
+    84					cout << copyStack.topAndPop() << '\n';
+    85			}
+    86			else if (s == 'c')
+    87			{
+    88				iStack.makeEmpty();
+    89			}
+    90			else if (s == 'd')
+    91			{
+    92				iStack.push(iStack.top());
+    93			}
+    94			else if (s == 'r') {
+    95				{
+    96					num1 = iStack.topAndPop();
+    97					num2 = iStack.topAndPop();
+    98					iStack.push(num1);
+    99					iStack.push(num2);
+   100				}
+   101	
+   102			}
+   103			else {
+   104				throw DataError();
+   105			}
+   106		}
+   107		catch (DataError obj) { cerr << "Illegal option -- Please try again." << endl; }
+   108	}
+   109	//Pre: The string is given
+   110	//Post: The string is checked for digits
+   111	//and the underscore since it represents a
+   112	//negative number
+   113	bool allDigits(string s)
+   114	{
+   115		bool test = true;
+   116	
+   117		test = test && (isdigit(s[0]) || (s[0] == '_'));
+   118		for (int i = 1; i < s.length(); i++)
+   119			test = test && (isdigit(s[i]));
+   120	
+   121		return test;
+   122	}
+   123	//Pre: The user gives a string input
+   124	//Post: Based on the userinput, the string is
+   125	//evaluated for a valid operator
+   126	int OpReturn(char s, Stack<int>& iStack)
+   127	{
+   128		int num1, num2;
+   129		try {
+   130			if (s == '+')
+   131			{
+   132				num1 = iStack.topAndPop();
+   133				num2 = iStack.topAndPop();
+   134				return num2 + num1;
+   135			}
+   136			else if (s == '-')
+   137			{
+   138				num1 = iStack.topAndPop();
+   139				num2 = iStack.topAndPop();
+   140				return num2 - num1;
+   141			}
+   142			else if (s == '*')
+   143			{
+   144				num1 = iStack.topAndPop();
+   145				num2 = iStack.topAndPop();
+   146				return num1 * num2;
+   147			}
+   148			else if (s == '/') {
+   149				try
+   150				{
+   151	
+   152					num1 = iStack.topAndPop();
+   153					num2 = iStack.topAndPop();
+   154					if (num1 == 0)
+   155						throw DivisionByZero();
+   156					else
+   157						return num2 / num1;
+   158				}
+   159				catch (DivisionByZero obj) { cerr << "Illegal division -- Cannot divide by zero." << endl; }
+   160	
+   161			}
+   162			else if (s == '%')
+   163			{
+   164				num1 = iStack.topAndPop();
+   165				num2 = iStack.topAndPop();
+   166				return num2 % num1;
+   167			}
+   168			else
+   169				cout << "Invalid character. Please try again." << endl;
+   170		}
+   171		catch (Underflow obj) { cerr << "Illegal action -- I'm empty." << endl; }
+   172	}
+]0;sims_gl@cobra:~/CSC245/Prog2[sims_gl@cobra Prog2]$ cat -n dc.cppexit[Ka.outc++ dc.cpp
+]0;sims_gl@cobra:~/CSC245/Prog2[sims_gl@cobra Prog2]$ c++ dc.cpp[3@at -n[C[C[C[C[C[C[Cexit[Ka.out
+ 2  2 3 +
+p
+5
+6 - p
+-1
+4 6 * + p
+23
+2 / p
+11
+4 % p
+3
+2 100 +
+3 4 5 f
+5
+4
+3
+102
+3
+5d*p
+25
+rf2pc
+4
+25
+3
+102
+3
+f
+!
+Invalid character. Please try again.
+a
+Illegal option -- Please try again.
+]0;sims_gl@cobra:~/CSC245/Prog2[sims_gl@cobra Prog2]$ exit
+exit
+
+Script done on Tue 12 Mar 2019 08:47:54 PM EDT

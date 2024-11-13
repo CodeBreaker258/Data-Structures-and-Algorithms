@@ -1,0 +1,263 @@
+Script started on Fri 08 Feb 2019 04:09:01 PM EST
+]0;sims_gl@cobra:~/CSC245/Prog1[?1034h[sims_gl@cobra Prog1]$ cat editor.cpp
+#include <iostream>
+#include "linelist.h"
+#include <fstream>
+#include <string>
+#include <stdlib.h>
+using namespace std;
+
+void JustEndAlready(char *argv[], LineList& L);
+int main(int argc, char *argv[])
+{	
+	//checks to see if the user forgot to enter a filename
+	if(argc == 1)
+	{
+		cout <<"File not entered. Program will now end." << endl;
+		exit(1);
+	}
+
+	//user input for a file within the directory can now be used
+	LineList L;
+	string filename = argv[1];
+	ifstream infile;
+	infile.open(filename.c_str());
+	string uline;
+	char userinput;
+	
+	//using getline, the file is opened and the information is taken from the file
+	if(infile.is_open())
+	{
+		while(getline(infile, uline))
+ 		{
+			L.insertLine(uline);
+		}
+  		infile.close();
+	}
+	//Displays a main menu of some sort
+	cout << "Welcome to the Simple Line Editor: Programmer Edition" << endl;
+	cout << "----------------------------------------------------" << endl;
+	L.goToTop();
+	L.printList();
+	L.goToBottom();
+	cout << L.getCurrLineNum() << "> ";
+	while(cin >> userinput)
+	{
+		if(userinput == 'I')
+		{
+			cout << L.getCurrLineNum() + 1 << "> ";
+      			cin.ignore();
+			getline(cin, uline);
+			L.insertLine(uline);
+		}
+		if(userinput == 'D')
+		{
+			L.deleteLine();
+		}
+		if(userinput == 'L')
+		{		
+			L.printList();
+		}
+		if(userinput == 'P')
+		{
+			L.movePrevLine();
+		}
+		if(userinput == 'N')
+		{
+			L.moveNextLine();
+		}	
+		if(userinput == 'E')
+		{
+     			JustEndAlready(argv, L);
+			exit(1);
+		}
+    		cout << L.getCurrLineNum() << "> ";	
+	}
+	return 0;
+}
+void JustEndAlready(char *argv[], LineList& L)
+{
+  ofstream outfile;
+  string filename = argv[1];
+  
+  outfile.open(filename.c_str());
+  L.goToTop();
+  
+  for(int i = 1; i <= L.getLength(); i++)
+  {
+    outfile << L.getCurrLine() << endl;
+    L.moveNextLine();
+  }
+  outfile.close();
+}  
+]0;sims_gl@cobra:~/CSC245/Prog1[sims_gl@cobra Prog1]$ cat linelist.cpp
+#include <iostream>
+#include "linelist.h"
+
+LineList::LineList()
+{
+	LineNode *line = new LineNode;
+	LineNode *line2 = new LineNode;
+
+	line -> info = topMessage;
+	currLine = line;
+	currLineNum = 0;
+	length = 0;
+	line2 -> info = bottomMessage;
+	currLine -> back = NULL;
+	currLine -> next = line2;
+	line2 -> back = line;
+	line2 -> next = NULL;
+}
+
+void LineList::goToTop() 
+{
+	// Post : Advances currLine to line 1
+	while(currLine -> info != topMessage)
+		currLine = currLine -> back;
+	
+	currLine = currLine -> next;	
+	currLineNum = 1;
+}
+
+void LineList::goToBottom() 
+{
+	// Post : Advances currLine to last line
+	while(currLine -> info != bottomMessage)
+		currLine = currLine -> next;
+	
+	currLine = currLine -> back;
+	currLineNum = length;
+}
+
+void LineList::insertLine(string newLine)
+{
+	// post : newLine has been inserted after the current line
+	if(currLine -> info == bottomMessage)
+		movePrevLine();
+
+	LineNode *line = new LineNode;
+	
+	line -> info = newLine;
+	line -> back = currLine;
+	line -> next = currLine -> next;
+	
+	currLine -> next -> back = line;
+	currLine -> next = line;
+	currLine = currLine -> next;
+	
+ 	currLineNum++;
+	length++;	
+	
+}
+
+void LineList::deleteLine()
+{
+	// post : deletes the current line leaving currentLine
+	//	  pointing to line following
+	
+	if((currLine -> info != topMessage) && (currLine -> info != bottomMessage))
+	{
+    		LineNode *tline = currLine;
+    
+		currLine -> next -> back = currLine -> back;
+		currLine -> back -> next = currLine -> next;
+
+		currLine = currLine -> next;
+		
+    		delete tline;	
+  	
+    		if(currLineNum == length)
+        		currLineNum--;
+    		length--;
+           
+    
+    		if(currLine -> info == topMessage)
+        		currLine = currLine -> next;
+        
+    		if(currLine -> info == bottomMessage)
+        		currLine = currLine -> back; 
+	}
+}
+void LineList::printList() 
+{
+	int increment = 1;
+
+	LineNode *tracker = currLine;
+	int trackerNum = currLineNum;
+
+	goToTop();
+
+	LineNode *lines = currLine;
+
+	while(lines -> info != bottomMessage)
+	{
+		cout << increment << "> " << lines -> info << endl;
+		lines = lines -> next;
+    		increment++;
+	}
+	
+	currLine = tracker;
+	currLineNum = trackerNum;
+}
+
+string LineList::getCurrLine() const
+{
+	return currLine -> info;
+}
+
+void LineList::moveNextLine()
+{
+	// Post : Advances currLine (unless already at last line)
+	if((currLine -> next != NULL) && (currLine -> info != bottomMessage))
+  	{
+		currLine = currLine -> next;	
+    		currLineNum++;
+  	}
+}
+
+void LineList::movePrevLine()
+{
+	// Post : Advances currLine (unless already at last line)
+	if((currLine -> back != NULL) && (currLine -> info != topMessage))
+	{	
+  		currLine = currLine -> back;
+   		currLineNum--;
+  	}	
+}
+
+int LineList::getCurrLineNum() const
+{
+	return currLineNum;	
+}
+
+int LineList::getLength() const
+{
+	return length;
+}
+]0;sims_gl@cobra:~/CSC245/Prog1[sims_gl@cobra Prog1]$ c++ editor.cpp linelist.o
+]0;sims_gl@cobra:~/CSC245/Prog1[sims_gl@cobra Prog1]$ a.out testfile
+Welcome to the Simple Line Editor: Programmer Edition
+----------------------------------------------------
+1> This is my first line.
+2> This is my second line.
+3> This is my third line.
+3> P
+2> I
+3> A brand new line is inserted!
+3> L
+1> This is my first line.
+2> This is my second line.
+3> A brand new line is inserted!
+4> This is my third line.
+3> This i      N
+4> D
+3> D
+2> L
+1> This is my first line.
+2> This is my second line.
+2> E
+]0;sims_gl@cobra:~/CSC245/Prog1[sims_gl@cobra Prog1]$ exit
+exit
+
+Script done on Fri 08 Feb 2019 04:10:01 PM EST
